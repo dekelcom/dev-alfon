@@ -57,34 +57,22 @@
 
 <script>
     function downloadVCard() {
-        // הפרטים שלך במבנה המדויק שעבד בקובץ של אופק טפירו
-        const vcardData = [
-            'BEGIN:VCARD',
-            'VERSION:3.0',
-            'N;CHARSET=UTF-8:דקל;כפיר;;;',
-            'FN;CHARSET=UTF-8:כפיר דקל',
-            'ORG;CHARSET=UTF-8:גדוד 882',
-            'TITLE;CHARSET=UTF-8:מפתח מערכת',
-            'TEL;TYPE=CELL;VOICE:0522596660', // המספר מהצילום מסך שלך
-            'END:VCARD'
-        ].join('\n');
+    // 1. בניית תוכן הכרטיס
+    const vcard = 'BEGIN:VCARD\n' +
+                  'VERSION:3.0\n' +
+                  'N;CHARSET=UTF-8:דקל;כפיר;;;\n' +
+                  'FN;CHARSET=UTF-8:כפיר דקל\n' +
+                  'TEL;TYPE=CELL;VOICE:0522596660\n' +
+                  'ORG;CHARSET=UTF-8:גדוד 882\n' +
+                  'END:VCARD';
 
-        const blob = new Blob([vcardData], { type: 'text/vcard;charset=utf-8' });
-        const url = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Kfir_Dekel.vcf';
-        
-        // הוספה למסמך כדי להבטיח זיהוי באייפון
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 150);
-    }
+    // 2. קידוד התוכן לפורמט URI
+    const uri = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcard);
+    
+    // 3. שינוי המיקום של החלון כולו לקישור הזה
+    // זה גורם לאייפון להבין שזה "מעבר לדף חדש" שהוא איש קשר
+    window.location.href = uri;
+    }    
 </script>
 
 </body>

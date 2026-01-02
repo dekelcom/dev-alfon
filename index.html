@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pluga Contacts</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4f6f8;
+  padding: 20px;
+}
+
+.contact {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.meta {
+  color: #666;
+  margin-top: 4px;
+}
+
+button {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #007aff;
+  color: white;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>אנשי קשר</h2>
+<div id="list"></div>
+
+<script>
+const allContacts = [
+  {
+    name: "אורי כהן",
+    mobile: "050-1234567",
+    pluga: "882",
+    framework: "שומרון",
+    role: "מ״מ מרחב חכם"
+  },
+  {
+    name: "דני לוי",
+    mobile: "052-9876543",
+    pluga: "769",
+    framework: "בנימין",
+    role: "קצין קשר"
+  }
+];
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  allContacts.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "contact";
+    div.innerHTML = `
+      <div class="name">${c.name}</div>
+      <div class="meta">${c.role}</div>
+      <div class="meta">${c.pluga} - ${c.framework}</div>
+      <div class="meta">${c.mobile}</div>
+      <button type="button" onclick="return saveVCardIOS(event, ${i})">שמור לאנשי קשר</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+render();
+
+async function saveVCardIOS(evt, idx) {
+  try {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    const c = allContacts[idx];
+    if (!c) throw "Contact missing";
+
+    const parts = c.name.trim().split(/\s+/);
+    const firstName = parts[0];
+    const lastName = parts.slice(1).join(" ");
+
+    let digits = c.mobile.replace(/\D/g, "");
+    if (digits.startsWith("0")) digits = "972" + digits.slice(1);
+    if (!digits.startsWith("972")) digits = "972" + digits;
+    const phone = "+" + digits;
+
+    const CRLF = "\r\n";
+    const vcard = "\uFEFF" + [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `N;CHARSET=UTF-8:${escapeV(lastName)};${escapeV(firstName)};;;`,
+      `FN;CHARSET=UTF-8:${escapeV(c.name)}`,
+      `ORG;CHARSET=UTF-8:${escapeV(c.pluga + " - " + c.framework)}`,
+      `TITLE;CHARSET=UTF-8:${escapeV(c.role)}`,
+      `TEL;TYPE=CELL,VOICE:${phone}`,
+      "END:VCARD"
+    ].join(CRLF) + CRLF;
+
+    const filename = c.name.replace(/\s+/g, "_") + ".vcf";
+    const file = new File([vcard], filename, { type: "text/vcard;charset=utf-8" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: "Add Contact",
+        text: "Import contact"
+      });
+    } else {
+      const dataUrl = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcard);
+      window.location.href = dataUrl;
+    }
+    return false;
+  } catch (e) {
+    alert("שגיאה בשמירת איש קשר");
+    console.error(e);
+    return false;
+  }
+}
+
+function escapeV(s) {
+  return (s || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .trim();
+}
+</script>
+
+</body>
+</html>

@@ -37,10 +37,11 @@
         
         // בניית מחרוזת הארגון בפורמט שביקשת: pluga - framework - role
         const orgParts = [
+            "גדוד 882",
             c.pluga || "",
             c.framework || "",
             c.role || ""
-        ].filter(part => part.trim().length > 0); // מנקה שדות ריקים כדי שלא יהיו מקפים מיותרים
+        ].filter(part => part.trim().length > 0);
         
         const orgDisplay = orgParts.join(" - ");
 
@@ -52,6 +53,7 @@
             "N:" + lastName + ";" + firstName + ";;;",
             "ORG:" + orgDisplay, // כאן יופיע: פלוגה ג - פלוגת חילוץ - מסייעת - סמל מבצעים
             "TITLE:",
+            "CATEGORIES:גדוד 882", // הוספת תגית קבוצה
             "TEL;TYPE=CELL,VOICE:" + phone,
             "END:VCARD"
         ].join('\n');

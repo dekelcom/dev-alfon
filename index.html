@@ -32,7 +32,7 @@
                 // יצירת רשימה פשוטה של קישורים
                 container.innerHTML = contacts.map(c => {
                     const fileId = c.mobileE164 ? c.mobileE164.replace('+', '') : '';
-                    const vcfUrl = `vcards/${fileId}.vcf`;
+                    const vcfUrl = `https://dekelcom.github.io/alfon/vcards/${fileId}.vcf`;
                     
                     return `
                         <div class="test-row">

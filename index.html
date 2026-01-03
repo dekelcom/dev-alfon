@@ -23,28 +23,31 @@
     <script>
         // פונקציה לטעינת הנתונים מה-JSON
         async function loadDebugList() {
-            try {
-                // שנה את ה-URL הזה לכתובת ה-JSON האמיתית שלך ב-GitHub
-                const response = await fetch('contacts.json'); 
-                const contacts = await response.json();
-                const container = document.getElementById('debug-list');
-                
-                // יצירת רשימה פשוטה של קישורים
-                container.innerHTML = contacts.map(c => {
-                    const fileId = c.mobileE164 ? c.mobileE164.replace('+', '') : '';
-                    const vcfUrl = `https://dekelcom.github.io/alfon/vcards/${fileId}.vcf`;
-                    
-                    return `
-                        <div class="test-row">
-                            <span>${c.name}</span>
-                            <a href="${vcfUrl}">לחץ להורדה: ${fileId}.vcf</a>
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                document.getElementById('debug-list').innerHTML = "שגיאה בטעינת ה-JSON: " + e;
-            }
-        }
+        try {
+        // פנייה לכתובת הציבורית של ה-JSON ב-Repo המקורי
+        const jsonUrl = 'https://dekelcom.github.io/alfon/contacts.json';
+        const response = await fetch(jsonUrl);
+        const contacts = await response.json();
+        
+        const container = document.getElementById('debug-list');
+        
+        container.innerHTML = contacts.map(c => {
+            const fileId = c.mobileE164 ? c.mobileE164.replace('+', '') : '';
+            // פנייה ישירה לקובץ ה-VCF ב-Repo של alfon
+            const vcfUrl = `https://dekelcom.github.io/alfon/vcards/${fileId}.vcf`;
+            
+            return `
+                <div class="test-row">
+                    <span>${c.name}</span>
+                    <a href="${vcfUrl}">בדיקת הורדה: ${fileId}.vcf</a>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error(e);
+        document.getElementById('debug-list').innerHTML = "שגיאה במשיכת נתונים מ-Alfon: " + e;
+    }
+}
 
         loadDebugList();
     </script>

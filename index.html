@@ -33,17 +33,24 @@
         const firstName = c.name.split(' ')[0] || "";
         const lastName = c.name.split(' ').slice(1).join(' ') || "";
         const phone = c.mobileE164 || c.mobile || "";
-        const org = c.company ? "פלוגה " + c.company : "אלפון";
-        const title = c.role || "";
+        
+        // בניית מחרוזת הארגון בפורמט: פלוגה - מסגרת - תפקיד
+        // אנחנו משתמשים בסינון (filter) כדי שלא יופיעו מקפים מיותרים אם שדה מסוים ריק
+        const orgParts = [
+            c.company ? "פלוגה " + c.company : "",
+            c.framework || "", // בהנחה שיש שדה כזה ב-JSON שלך
+            c.role || ""
+        ].filter(part => part.length > 0);
+        
+        const orgDisplay = orgParts.join(" - ");
 
-        // הפורמט ששלחת
         var vcard = [
             "BEGIN:VCARD",
             "VERSION:3.0",
             "FN:" + c.name,
             "N:" + lastName + ";" + firstName + ";;;",
-            "ORG:" + org,
-            "TITLE:" + title,
+            "ORG:" + orgDisplay, // כאן מופיע "פלוגה - מסגרת - תפקיד"
+            "TITLE:" + (c.role || ""),
             "TEL;TYPE=CELL,VOICE:" + phone,
             "END:VCARD"
         ].join('\n');
@@ -63,7 +70,6 @@
             URL.revokeObjectURL(url);
         }, 100);
     }
-
     async function init() {
         try {
             const res = await fetch(`${BASE_URL}/contacts.json`);

@@ -30,7 +30,6 @@
 
     // פונקציית השמירה שביקשת (מותאמת לאובייקט שלנו)
     function saveContact(c) {
-        // פיצול השם לשם פרטי ומשפחה עבור שדה N
         const nameParts = c.name.split(' ');
         const firstName = nameParts[0] || "";
         const lastName = nameParts.slice(1).join(' ') || "";
@@ -52,7 +51,7 @@
             "FN:" + c.name,
             "N:" + lastName + ";" + firstName + ";;;",
             "ORG:" + orgDisplay, // כאן יופיע: פלוגה ג - פלוגת חילוץ - מסייעת - סמל מבצעים
-            "TITLE:" + (c.role || ""),
+            "TITLE:",
             "TEL;TYPE=CELL,VOICE:" + phone,
             "END:VCARD"
         ].join('\n');

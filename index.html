@@ -3,77 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>כרטיס ביקור - כפיר דקל - V 1.0.1</title>
+    <title>בדיקת הורדת Vcards</title>
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
+        body { font-family: sans-serif; padding: 20px; }
+        .test-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px; 
+            border-bottom: 1px solid #ccc; 
+            max-width: 500px;
         }
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 280px;
-        }
-        h2 { margin: 10px 0; color: #333; }
-        p { color: #666; margin-bottom: 25px; }
-        .save-btn {
-            background-color: #007AFF;
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .save-btn:active { transform: scale(0.98); opacity: 0.9; }
+        a { color: blue; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
+    <h1>רשימת קבצי VCard לבדיקה</h1>
+    <div id="debug-list">טוען נתונים...</div>
 
-<div class="card">
-    <div style="font-size: 50px;">👤</div>
-    <h2>כפיר דקל</h2>
-    <p>מפתח אלפון גדוד 882</p>
-    
-    <button class="save-btn" onclick="downloadVCard()">
-        <span>💾</span> שמירת איש קשר
-    </button>
-</div>
+    <script>
+        // פונקציה לטעינת הנתונים מה-JSON
+        async function loadDebugList() {
+            try {
+                // שנה את ה-URL הזה לכתובת ה-JSON האמיתית שלך ב-GitHub
+                const response = await fetch('contacts.json'); 
+                const contacts = await response.json();
+                const container = document.getElementById('debug-list');
+                
+                // יצירת רשימה פשוטה של קישורים
+                container.innerHTML = contacts.map(c => {
+                    const fileId = c.mobileE164 ? c.mobileE164.replace('+', '') : '';
+                    const vcfUrl = `vcards/${fileId}.vcf`;
+                    
+                    return `
+                        <div class="test-row">
+                            <span>${c.name}</span>
+                            <a href="${vcfUrl}">לחץ להורדה: ${fileId}.vcf</a>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                document.getElementById('debug-list').innerHTML = "שגיאה בטעינת ה-JSON: " + e;
+            }
+        }
 
-<script>
-    function downloadVCard() {
-    // 1. בניית תוכן הכרטיס
-    const vcard = 'BEGIN:VCARD\n' +
-                  'VERSION:3.0\n' +
-                  'N;CHARSET=UTF-8:דקל;כפיר;;;\n' +
-                  'FN;CHARSET=UTF-8:כפיר דקל\n' +
-                  'TEL;TYPE=CELL;VOICE:0522596660\n' +
-                  'ORG;CHARSET=UTF-8:גדוד 882\n' +
-                  'END:VCARD';
-
-    // 2. קידוד התוכן לפורמט URI
-    const uri = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcard);
-    
-    // 3. שינוי המיקום של החלון כולו לקישור הזה
-    // זה גורם לאייפון להבין שזה "מעבר לדף חדש" שהוא איש קשר
-    window.location.href = uri;
-    }    
-</script>
-
+        loadDebugList();
+    </script>
 </body>
 </html>

@@ -30,31 +30,34 @@
 
     // פונקציית השמירה שביקשת (מותאמת לאובייקט שלנו)
     function saveContact(c) {
-        const firstName = c.name.split(' ')[0] || "";
-        const lastName = c.name.split(' ').slice(1).join(' ') || "";
+        // פיצול השם לשם פרטי ומשפחה עבור שדה N
+        const nameParts = c.name.split(' ');
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(' ') || "";
         const phone = c.mobileE164 || c.mobile || "";
         
-        // בניית מחרוזת הארגון בפורמט: פלוגה - מסגרת - תפקיד
-        // אנחנו משתמשים בסינון (filter) כדי שלא יופיעו מקפים מיותרים אם שדה מסוים ריק
+        // בניית מחרוזת הארגון בפורמט שביקשת: pluga - framework - role
         const orgParts = [
-            c.company ? "פלוגה " + c.company : "",
-            c.framework || "", // בהנחה שיש שדה כזה ב-JSON שלך
+            c.pluga || "",
+            c.framework || "",
             c.role || ""
-        ].filter(part => part.length > 0);
+        ].filter(part => part.trim().length > 0); // מנקה שדות ריקים כדי שלא יהיו מקפים מיותרים
         
         const orgDisplay = orgParts.join(" - ");
 
+        // יצירת ה-vCard בפורמט 3.0
         var vcard = [
             "BEGIN:VCARD",
             "VERSION:3.0",
             "FN:" + c.name,
             "N:" + lastName + ";" + firstName + ";;;",
-            "ORG:" + orgDisplay, // כאן מופיע "פלוגה - מסגרת - תפקיד"
+            "ORG:" + orgDisplay, // כאן יופיע: פלוגה ג - פלוגת חילוץ - מסייעת - סמל מבצעים
             "TITLE:" + (c.role || ""),
             "TEL;TYPE=CELL,VOICE:" + phone,
             "END:VCARD"
         ].join('\n');
 
+        // יצירת Blob והורדה (השיטה שעובדת לך בספארי)
         var blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
         var url = URL.createObjectURL(blob);
         
@@ -65,6 +68,7 @@
         document.body.appendChild(newLink);
         newLink.click();
         
+        // ניקוי
         setTimeout(function() {
             document.body.removeChild(newLink);
             URL.revokeObjectURL(url);

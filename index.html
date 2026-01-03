@@ -35,7 +35,6 @@
         const lastName = nameParts.slice(1).join(' ') || "";
         const phone = c.mobileE164 || c.mobile || "";
         
-        // בניית מחרוזת הארגון בפורמט שביקשת: pluga - framework - role
         const orgParts = [
             "גדוד 882",
             c.pluga || "",
@@ -45,23 +44,24 @@
         
         const orgDisplay = orgParts.join(" - ");
 
-        // יצירת ה-vCard בפורמט 3.0
+        // יצירת תוכן ה-vCard
         var vcard = [
             "BEGIN:VCARD",
             "VERSION:4.0",
-            "FN:" + c.name,
+            "FN:" + c.name + " (גדוד 882)",
             "N:" + lastName + ";" + firstName + ";;;",
-            "ORG:" + orgDisplay, // כאן יופיע: פלוגה ג - פלוגת חילוץ - מסייעת - סמל מבצעים
-            "TITLE:",
-            "CATEGORIES:גדוד 882", // הוספת תגית קבוצה
-            "TEL;TYPE=CELL,VOICE:" + phone,
+            "ORG:" + orgDisplay,
+            "TITLE:", 
+            "CATEGORIES:גדוד 882",
+            "TEL;TYPE=cell,voice;VALUE=uri:tel:" + phone,
             "END:VCARD"
-        ].join('\n');
+        ].join('\r\n'); // שימוש ב-CRLF (סטנדרט של vCard למניעת שגיאות קריאה)
 
-        // יצירת Blob והורדה (השיטה שעובדת לך בספארי)
-        var blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-        var url = URL.createObjectURL(blob);
+        // הוספת BOM (Byte Order Mark) בתחילת הקובץ כדי למנוע ג'יבריש במערכות שונות
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, vcard], { type: "text/vcard;charset=utf-8" });
         
+        var url = URL.createObjectURL(blob);
         var newLink = document.createElement('a');
         newLink.download = c.name + ".vcf";
         newLink.href = url;
@@ -69,7 +69,6 @@
         document.body.appendChild(newLink);
         newLink.click();
         
-        // ניקוי
         setTimeout(function() {
             document.body.removeChild(newLink);
             URL.revokeObjectURL(url);
